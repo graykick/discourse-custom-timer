@@ -1,0 +1,4 @@
+plugins:
+  discourse_custom_timer_enabled:
+    default: true
+    client: true
