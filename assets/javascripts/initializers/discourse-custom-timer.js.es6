@@ -51,11 +51,12 @@ function initializeDiscourseCustomTimer(api) {
       return this.attach('menu-panel', {
         contents: () => this.items.map(item => this.attach("timer-dropdown-item", {
           hour: item,
-          onClick: async (time) => {
-            const result = await attrs.setTimer(time)
-            console.log(result)
-            this.clickOutside()
-            this.updateTimerStatusUI(time, result)
+          onClick: (time) => {
+            attrs.setTimer(time)
+              .then(result => {
+                this.clickOutside()
+                this.updateTimerStatusUI(time, result)
+              })
           }
         }))
       });
