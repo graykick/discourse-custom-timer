@@ -3,54 +3,48 @@ import TopicTimer from "discourse/models/topic-timer";
 import EditTopicTimer from "discourse/controllers/edit-topic-timer";
 import TopicTimerStatus from "discourse/components/topic-timer-info"
 import EmberObject, { setProperties } from "@ember/object";
-
+import { TimerTimeFromNow, TimerTimeWithSpecificMoment } from "discourse/plugins/DiscourseCustomTimer/core/timer_time";
 
 function initializeDiscourseCustomTimer(api) {
   // https://github.com/discourse/discourse/blob/master/app/assets/javascripts/discourse/lib/plugin-api.js.es6
 
-  function dateToYYYYMMDDHHMM(date) {
-    const targetDate = new Date(date)
-    return (targetDate.getFullYear() + '-' + ('0' + (targetDate.getMonth() + 1)).slice(-2) + '-' + ('0' + targetDate.getDate()).slice(-2) + ' ' + targetDate.getHours() + ':' + ('0' + (targetDate.getMinutes())).slice(-2))
-  }
-
   api.createWidget('timer-dropdown-item', {
     tagName: 'div.timer_dropdown_item',
 
-    calcTimerTime(hour) {
-      const addingSeconds = hour * 60 * 60 * 1000
-      const targetSeconds = (new Date()).getTime() + addingSeconds
-      const targetDate = new Date(targetSeconds)
-
-      return targetDate
-    },
-
-    getTime(hour) {
-      const targetDate = this.calcTimerTime(hour)
-      return [`${hour}h`, dateToYYYYMMDDHHMM(targetDate)]
+    timeForDisplay(timerTime) {
+      return [timerTime.label, timerTime.formattedTime]
     },
 
     html(attrs) {
       return this.attach("menu-links", {
         name: "timer_hour_item",
-        contents: () => this.getTime(attrs.hour)
+        contents: () => this.timeForDisplay(attrs.timerTime)
       })
     },
 
     click() {
-      const targetTime = this.calcTimerTime(this.attrs.hour)
-      this.attrs.onClick(targetTime)
+      this.attrs.onClick(this.attrs.timerTime.time)
     }
   })
 
   api.createWidget('timer-dropdown', {
     tagName: 'div.timer_dropdown_container',
 
-    items: [1, 2, 4, 6],
+    times: [
+      TimerTimeFromNow.createWithHour('1h', 1),
+      TimerTimeFromNow.createWithHour('2h', 3),
+      TimerTimeFromNow.createWithHour('4h', 4),
+      TimerTimeFromNow.createWithHour('6h', 6),
+      TimerTimeWithSpecificMoment.createWithNextDaysAndHour('1d', 1, 10),
+      TimerTimeWithSpecificMoment.createWithNextDaysAndHour('2d', 2, 10),
+      TimerTimeWithSpecificMoment.createWithNextDaysAndHour('3d', 3, 10),
+    ],
 
     html(attrs) {
+      console.log(this.times)
       return this.attach('menu-panel', {
-        contents: () => this.items.map(item => this.attach("timer-dropdown-item", {
-          hour: item,
+        contents: () => this.times.map(time => this.attach("timer-dropdown-item", {
+          timerTime: time,
           onClick: (time) => {
             attrs.setTimer(time)
               .then(result => {

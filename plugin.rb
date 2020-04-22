@@ -2,7 +2,7 @@
 
 # name: DiscourseCustomTimer
 # about: Notify post when you want
-# version: 0.1
+# version: 0.2
 # authors: graykick
 # url: https://github.com/graykick
 
