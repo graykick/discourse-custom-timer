@@ -3,23 +3,23 @@ import TopicTimer from "discourse/models/topic-timer";
 import EditTopicTimer from "discourse/controllers/edit-topic-timer";
 import TopicTimerStatus from "discourse/components/topic-timer-info"
 import EmberObject, { setProperties } from "@ember/object";
+import { h } from 'virtual-dom';
 import { TimerTimeFromNow, TimerTimeWithSpecificMoment } from "discourse/plugins/DiscourseCustomTimer/core/timer_time";
 
 function initializeDiscourseCustomTimer(api) {
   // https://github.com/discourse/discourse/blob/master/app/assets/javascripts/discourse/lib/plugin-api.js.es6
-
   api.createWidget('timer-dropdown-item', {
     tagName: 'div.timer_dropdown_item',
 
     timeForDisplay(timerTime) {
-      return [timerTime.label, timerTime.formattedTime]
+      return h('div.time-info-container', [
+        h('h3.time-header-label', timerTime.label),
+        h('p.time-detail-time', timerTime.formattedTime),
+      ])
     },
 
     html(attrs) {
-      return this.attach("menu-links", {
-        name: "timer_hour_item",
-        contents: () => this.timeForDisplay(attrs.timerTime)
-      })
+      return h('button.widget-button.btn.timer-item', this.timeForDisplay(attrs.timerTime))
     },
 
     click() {
